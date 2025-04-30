@@ -81,7 +81,6 @@ category_name = st.sidebar.selectbox("Category", sorted(CATEGORY_NAMES))
 category_id   = NAME_TO_ID[category_name]
 
 day_of_week = st.sidebar.selectbox("Day of Week", days)
-category_id = st.sidebar.selectbox("Category ID", categories)
 
 title       = st.sidebar.text_input("Video Title (optional)")
 symbol_count = sum(unicodedata.category(c).startswith("So") for c in title)
