@@ -62,7 +62,25 @@ model, scaler, tab_cols = load_artifacts()
 st.title("YouTube Views Predictor")
 
 st.sidebar.header("Tabular Inputs")
-likes        = st.sidebar.number_input("Likes", min_value=0, value=1000)
+# Make Likes optional for pre-publish predictions
+use_likes = st.sidebar.checkbox(
+    "Do you already know the like count?", 
+    value=False,
+    help="Check if your video is already live and you have a likes so far."
+)
+if use_likes:
+    likes = st.sidebar.number_input(
+        "Likes so far", 
+        min_value=0, 
+        value=0, 
+        help="Number of likes your video has received to date."
+    )
+else:
+    likes = 0
+    st.sidebar.markdown(
+        "_You can leave **Likes** blank if predicting before publish; it will default to 0._"
+    )
+
 subscribers  = st.sidebar.number_input("Subscribers", min_value=0, value=10000)
 publish_hour = st.sidebar.slider("Publish Hour (0–23)", 0, 23, 12)
 
