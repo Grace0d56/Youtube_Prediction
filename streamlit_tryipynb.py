@@ -14,6 +14,38 @@ import joblib
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.image import load_img, img_to_array
 
+
+import streamlit as st
+from googleapiclient.discovery import build
+
+# ──────────────────────────────────────────────────────────────────────────────
+# A) Load YouTube API key from secrets
+YOUTUBE_API_KEY = st.secrets["youtube"]["api_key"]
+
+# B) Cached fetch function
+@st.cache_resource
+def fetch_category_map(region_code="US"):
+    """
+    Returns a dict: {categoryId (int): categoryName (str)}
+    """
+    youtube = build("youtube", "v3", developerKey=YOUTUBE_API_KEY)
+    resp = (
+        youtube.videoCategories()
+               .list(part="snippet", regionCode=region_code)
+               .execute()
+    )
+    mapping = {
+        int(item["id"]): item["snippet"]["title"]
+        for item in resp["items"]
+        if item["snippet"]["assignable"]  # only categories you can actually assign
+    }
+    return mapping
+
+CATEGORY_MAP   = fetch_category_map("US")       # or your preferred country code
+NAME_TO_ID     = {v:k for k,v in CATEGORY_MAP.items()}
+CATEGORY_NAMES = list(CATEGORY_MAP.values())
+
+
 # ──────────────────────────────────────────────────────────────────────────────
 # 1) Load artifacts (cached so it only runs once)
 @st.cache_resource
@@ -45,6 +77,9 @@ days       = sorted(c.split("_",2)[2] for c in tab_cols if c.startswith("day_of_
 categories = sorted(c.split("_",2)[2] for c in tab_cols if c.startswith("category_id_"))
 
 region      = st.sidebar.selectbox("Region", regions)
+category_name = st.sidebar.selectbox("Category", sorted(CATEGORY_NAMES))
+category_id   = NAME_TO_ID[category_name]
+
 day_of_week = st.sidebar.selectbox("Day of Week", days)
 category_id = st.sidebar.selectbox("Category ID", categories)
 
@@ -68,17 +103,31 @@ st.image(img, use_container_width=True)
 # ──────────────────────────────────────────────────────────────────────────────
 row = dict.fromkeys(tab_cols, 0.0)
 row.update({
-    "likes":         likes,
-    "subscribers":   subscribers,
-    "hour_sin":      hour_sin,
-    "hour_cos":      hour_cos,
-    "symbol_count":  symbol_count,
-    f"region_{region}":           1.0,
-    f"day_of_week_{day_of_week}": 1.0,
-    f"category_id_{category_id}": 1.0,
+    "likes":        likes,
+    "subscribers":  subscribers,
+    "hour_sin":     hour_sin,
+    "hour_cos":     hour_cos,
+    "symbol_count": symbol_count,
 })
+
+# set region dummy only if that column exists
+reg_col = f"region_{region}"
+if reg_col in tab_cols:
+    row[reg_col] = 1.0
+
+# set day_of_week dummy only if that column exists
+dow_col = f"day_of_week_{day_of_week}"
+if dow_col in tab_cols:
+    row[dow_col] = 1.0
+
+# set category_id dummy only if that column exists
+cat_col = f"category_id_{category_id}"
+if cat_col in tab_cols:
+    row[cat_col] = 1.0
+
 X_tab = pd.DataFrame([row], columns=tab_cols)
 X_tab_scaled = scaler.transform(X_tab)
+
 
 # ──────────────────────────────────────────────────────────────────────────────
 # 5) Predict
