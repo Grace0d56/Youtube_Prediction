@@ -16,7 +16,7 @@ from tensorflow.keras.preprocessing.image import load_img, img_to_array
 
 # ──────────────────────────────────────────────────────────────────────────────
 # 1) Load artifacts (cached so it only runs once)
-@st.cache(allow_output_mutation=True)
+@st.cache_resource
 def load_artifacts():
     model    = load_model("model.keras")      # your trained Keras model
     scaler   = joblib.load("scaler.pkl")      # fitted StandardScaler
