@@ -61,7 +61,8 @@ if not uploaded_file:
 img = load_img(uploaded_file, target_size=(128,128))
 
 img_arr = img_to_array(img) / 255.0
-st.image(img, use_column_width=True)
+st.image(img, use_container_width=True)
+
 
 # 4) Assemble tabular feature vector
 row = dict.fromkeys(tab_cols, 0.0)
