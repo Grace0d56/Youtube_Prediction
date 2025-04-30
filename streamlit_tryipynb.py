@@ -63,8 +63,9 @@ img = load_img(uploaded_file, target_size=(128,128))
 img_arr = img_to_array(img) / 255.0
 st.image(img, use_container_width=True)
 
-
+# ──────────────────────────────────────────────────────────────────────────────
 # 4) Assemble tabular feature vector
+# ──────────────────────────────────────────────────────────────────────────────
 row = dict.fromkeys(tab_cols, 0.0)
 row.update({
     "likes":         likes,
@@ -81,11 +82,24 @@ X_tab_scaled = scaler.transform(X_tab)
 
 # ──────────────────────────────────────────────────────────────────────────────
 # 5) Predict
-X_img_input = np.expand_dims(img_arr, 0)   # shape (1,128,128,3)
-y_log_pred   = model.predict([X_img_input, X_tab_scaled])[0,0]
-y_pred       = np.expm1(y_log_pred)        # back to raw views
+# ──────────────────────────────────────────────────────────────────────────────
+# Prepare image
+X_img_input = np.expand_dims(img_arr, axis=0)   # shape (1,128,128,3)
+
+# Raw model output in √-space:
+y_model_out = model.predict([X_img_input, X_tab_scaled])[0,0]
+st.write("Raw model output:", y_model_out)
+
+# Back-transform:
+# If trained on sqrt(views):
+y_pred = float(y_model_out) ** 2
+
+# If you had trained on log1p(views), instead use:
+# y_pred = np.expm1(y_model_out)
 
 # ──────────────────────────────────────────────────────────────────────────────
 # 6) Display result
+# ──────────────────────────────────────────────────────────────────────────────
 st.subheader("Estimated View Count")
 st.markdown(f"### **{y_pred:,.0f}** views")
+
