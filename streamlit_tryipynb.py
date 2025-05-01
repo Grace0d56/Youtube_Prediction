@@ -192,6 +192,24 @@ y_pred = float(y_model_out) ** 2
 # ──────────────────────────────────────────────────────────────────────────────
 # 6) Display result
 # ──────────────────────────────────────────────────────────────────────────────
-st.subheader("Estimated View Count")
-st.markdown(f"### **{y_pred:,.0f}** views")
+#st.subheader("Estimated View Count")
+#st.markdown(f"### **{y_pred:,.0f}** views")
+
+# After you compute y_pred…
+VAL_RMSE    = 9_697_923
+VAL_RMSE95  = 1.96 * VAL_RMSE
+
+# 68% interval
+low68  = max(0, y_pred - VAL_RMSE)
+high68 = y_pred + VAL_RMSE
+
+# 95% interval
+low95  = max(0, y_pred - VAL_RMSE95)
+high95 = y_pred + VAL_RMSE95
+
+st.markdown("**Estimated views:**")
+st.markdown(f"- Point: **{y_pred:,.0f}**")
+st.markdown(f"- 68% range (±1σ): {low68:,.0f} – {high68:,.0f} (±{VAL_RMSE:,.0f})")
+st.markdown(f"- 95% range (±1.96σ): {low95:,.0f} – {high95:,.0f} (±{VAL_RMSE95:,.0f})")
+
 
