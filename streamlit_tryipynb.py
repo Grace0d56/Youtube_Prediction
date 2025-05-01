@@ -1,13 +1,11 @@
-# 1) Load artifacts (cached so it only runs once)
 @st.cache_resource
 def load_artifacts():
-    # point to your new files here:
-    model    = load_model("model2.keras")       # the retrained Keras model
-    scaler   = joblib.load("scaler2.pkl")       # your new StandardScaler
-    tab_cols = joblib.load("tab_cols2.pkl")     # the updated column list
+    model    = load_model("model2.keras")   # your retrained Keras model
+    scaler   = joblib.load("scaler2.pkl")   # your new StandardScaler
+    tab_cols = joblib.load("tab_cols2.pkl") # the updated column list
     return model, scaler, tab_cols
 
-+model, scaler, tab_cols = load_artifacts()
+model, scaler, tab_cols = load_artifacts()
 
 # -*- coding: utf-8 -*-
 """Streamlit_tryipynb
