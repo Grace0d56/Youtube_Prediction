@@ -1,12 +1,3 @@
-@st.cache_resource
-def load_artifacts():
-    model    = load_model("model2.keras")   # your retrained Keras model
-    scaler   = joblib.load("scaler2.pkl")   # your new StandardScaler
-    tab_cols = joblib.load("tab_cols2.pkl") # the updated column list
-    return model, scaler, tab_cols
-
-model, scaler, tab_cols = load_artifacts()
-
 # -*- coding: utf-8 -*-
 """Streamlit_tryipynb
 
@@ -59,9 +50,9 @@ CATEGORY_NAMES = list(CATEGORY_MAP.values())
 # 1) Load artifacts (cached so it only runs once)
 @st.cache_resource
 def load_artifacts():
-    model    = load_model("model.keras")      # your trained Keras model
-    scaler   = joblib.load("scaler.pkl")      # fitted StandardScaler
-    tab_cols = joblib.load("tab_cols.pkl")    # list of tab_df.columns
+    model    = load_model("model2.keras")
+    scaler   = joblib.load("scaler2.pkl")
+    tab_cols = joblib.load("tab_cols2.pkl")
     return model, scaler, tab_cols
 
 model, scaler, tab_cols = load_artifacts()
