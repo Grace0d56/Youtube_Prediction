@@ -58,15 +58,20 @@ def load_artifacts():
 model, scaler, tab_cols = load_artifacts()
 
 # ──────────────────────────────────────────────────────────────────────────────
+# ──────────────────────────────────────────────────────────────────────────────
 # 2) Build UI
+# ──────────────────────────────────────────────────────────────────────────────
+import datetime
+
 st.title("YouTube Views Predictor")
 
 st.sidebar.header("Tabular Inputs")
-# Make Likes optional for pre-publish predictions
+
+# 1) Likes (optional for pre-publish)
 use_likes = st.sidebar.checkbox(
     "Do you already know the like count?", 
     value=False,
-    help="Check if your video is already live and you have a likes so far."
+    help="Check if your video is already live and you have a like count so far."
 )
 if use_likes:
     likes = st.sidebar.number_input(
@@ -81,26 +86,47 @@ else:
         "_You can leave **Likes** blank if predicting before publish; it will default to 0._"
     )
 
-subscribers  = st.sidebar.number_input("Subscribers", min_value=0, value=10000)
-publish_hour = st.sidebar.slider("Publish Hour (0–23)", 0, 23, 12)
+# 2) Subscribers
+subscribers = st.sidebar.number_input(
+    "Subscribers", 
+    min_value=0, 
+    value=10000,
+    help="Your channel’s current subscriber count."
+)
 
-# cyclic-encode hour
+# 3) Publish date & hour
+publish_date = st.sidebar.date_input(
+    "Publish Date",
+    value=datetime.date.today(),
+    help="Select the date your video will (or did) publish."
+)
+publish_hour = st.sidebar.slider(
+    "Publish Hour (0–23)", 
+    min_value=0, max_value=23, value=12,
+    help="The hour of day your video publishes."
+)
+
+# 4) Cyclic encoding of hour
 r = 2 * np.pi * publish_hour / 24
 hour_sin = np.sin(r)
 hour_cos = np.cos(r)
 
-# derive categories from tab_cols
+# 5) Region & Category picks
 regions    = sorted(c.split("_",1)[1] for c in tab_cols if c.startswith("region_"))
-days       = sorted(c.split("_",2)[2] for c in tab_cols if c.startswith("day_of_week_"))
-categories = sorted(c.split("_",2)[2] for c in tab_cols if c.startswith("category_id_"))
+region     = st.sidebar.selectbox("Region", regions)
 
-region      = st.sidebar.selectbox("Region", regions)
-category_name = st.sidebar.selectbox("Category", sorted(CATEGORY_NAMES))
-category_id   = NAME_TO_ID[category_name]
+category_name = st.sidebar.selectbox(
+    "Category", 
+    sorted(CATEGORY_NAMES),
+    help="Official YouTube category names"
+)
+category_id = NAME_TO_ID[category_name]
 
-day_of_week = st.sidebar.selectbox("Day of Week", days)
+# 6) Derive day_of_week from the calendar date
+day_of_week = publish_date.strftime("%A")  # e.g. "Monday", "Tuesday", etc.
 
-title       = st.sidebar.text_input("Video Title (optional)")
+# 7) Title & symbol count
+title        = st.sidebar.text_input("Video Title (optional)")
 symbol_count = sum(unicodedata.category(c).startswith("So") for c in title)
 
 # 3) Image uploader
