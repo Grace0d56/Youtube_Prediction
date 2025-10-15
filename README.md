@@ -8,3 +8,5 @@ We tried an MLP model and a CNN for thumbnail processing. We also used SHAP for 
 
 We also integrated our model into Streamlit to demonstrate how it can predict view counts based on metadata inputs: [https://youtubeprediction-aij9p3nn3bmkcvpcnukuh2.streamlit.app/](https://youtubeprediction-aij9p3nn3bmkcvpcnukuh2.streamlit.app/) (the app may be inactive due to prolonged inactivity).
 
+This is a team project with Manyi Hong, Wenxin Liang, and Shuomeng Guan
+
